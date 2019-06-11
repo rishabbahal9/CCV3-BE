@@ -7,8 +7,10 @@ const bodyParser=require('body-parser')
 const mongoose=require('mongoose')
 
 const authRoute=require('./routes/auth')
+const genericRoute=require('./routes/generic')
 
-const mongodb_url="mongodb+srv://coconutAdmin:bTJPb4kC9usAmqve@rishab999-nhaqy.mongodb.net/coconutc"
+// const mongodb_url="mongodb+srv://coconutAdmin:bTJPb4kC9usAmqve@rishab999-nhaqy.mongodb.net/coconutc"
+const mongodb_url="mongodb://127.0.0.1:27017/coconutc"
 const app=express()
 
 app.use(bodyParser.json())
@@ -26,6 +28,7 @@ app.use((req,res,next)=>{
     next()
 })
 
+app.use('/generic',genericRoute)
 app.use('/auth',authRoute)
 
 app.use((req,res,next)=>{
