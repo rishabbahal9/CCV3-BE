@@ -31,6 +31,10 @@ const userSchema=new Schema(
             type: Boolean,
             required: true
         },
+        dateCreated:{
+            type: Date,
+            required: true
+        },
         starred: {
             type: Array
         },

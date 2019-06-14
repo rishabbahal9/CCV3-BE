@@ -9,6 +9,7 @@ exports.postSignup=(req,res,next)=>{
     const email=req.body.email;
     var password=req.body.password;
     const imgUrl=req.body.imgUrl;
+    const dateCreated=Date.now()
     
     //Encrypting password
     bcrypt.hash(password,12)
@@ -20,7 +21,8 @@ exports.postSignup=(req,res,next)=>{
             email:email,
             password: hashedPassword,
             imgUrl: imgUrl,
-            emailVerified: false
+            emailVerified: false,
+            dateCreated:dateCreated
             })
 
             User.findOne({email: email})
