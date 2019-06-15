@@ -1,6 +1,17 @@
 const bcrypt=require('bcryptjs')
 const User=require('./../model/user')
 
+const nodemailer=require('nodemailer')
+const sendgridTransport=require('nodemailer-sendgrid-transport')
+
+const transporter=nodemailer.createTransport(
+    sendgridTransport({
+        auth: {
+            api_key: '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'
+        }
+    })
+)
+
 
 exports.postSignup=(req,res,next)=>{
     const firstName=req.body.firstName;
@@ -27,18 +38,33 @@ exports.postSignup=(req,res,next)=>{
 
             User.findOne({email: email})
             .then(userStored=>{
-                console.log(userStored)
+                // console.log("userStored")
+                // console.log(userStored)
                 if(!userStored)
                 {
                     user.save()
                     .then(result=>{
                         // console.log(result)
-                        res.status(201).json({msg: 'Details successfully stored! A link has been sent to your email, click the link to verify your email.',user:user})
+                        res.status(201).json({msg: 'Details successfully stored! A link has been sent to your email, click the link to verify your email. (Mail might be stored in spam section)'})
+                        console.log("Result")
+                        console.log(result._id)
+                        transporter.sendMail({
+                            to: result.email,
+                            from: 'coconut8catalogue@gmail.com',
+                            subject: 'Email verify: Coconut Catalogue',
+                            html: `
+                            <h1>Email verify</h1>
+                            <p>Click the link below to verify your email..
+                            </p>
+                            <a href="http://127.0.0.1:4200/emailVerify/${result._id}">Verify</a>
+                            `
+                        })
                     })
                     .catch(err=>{
                         console.log(err)
                         res.status(501).json({msg: 'Error: cannot save data',user: {}})
                     })
+                    
                 }
                 else
                 {
