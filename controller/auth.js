@@ -99,9 +99,33 @@ exports.postLogin=(req,res,next)=>{
                     else
                     {
                         if(user.emailVerified)
-                            res.status(200).json({msg: "Successfully logged in!", authenticated: true, user: user})
+                            res.status(200).json({msg: "Successfully logged in!", 
+                                                authenticated: true, 
+                                                emailVerified: true, 
+                                                user: {firstName: user.firstName, 
+                                                    lastName: user.lastName, 
+                                                    email: user.email, 
+                                                    gender: user.gender, 
+                                                    imgUrl: user.imgUrl, 
+                                                    dateCreated: user.dateCreated, 
+                                                    starred: user.starred, 
+                                                    uploaded: user.uploaded, 
+                                                    emailVerified: user.emailVerified}
+                                                })
                         else
-                            res.status(401).json({msg: "Your email is yet not verified!", authenticated: false, user: {}})
+                            res.status(401).json({msg: "Your email is yet not verified!", 
+                                                authenticated: true, 
+                                                emailVerified: false, 
+                                                user: {firstName: user.firstName, 
+                                                    lastName: user.lastName, 
+                                                    email: user.email, 
+                                                    gender: user.gender, 
+                                                    imgUrl: user.imgUrl, 
+                                                    dateCreated: user.dateCreated, 
+                                                    starred: user.starred, 
+                                                    uploaded: user.uploaded, 
+                                                    emailVerified: user.emailVerified}
+                                                })
                     }
                 }
             )
