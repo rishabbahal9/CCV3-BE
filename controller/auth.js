@@ -1,5 +1,6 @@
 const bcrypt=require('bcryptjs')
 const User=require('./../model/user')
+const jwt=require('jsonwebtoken')
 
 const nodemailer=require('nodemailer')
 const sendgridTransport=require('nodemailer-sendgrid-transport')
@@ -98,34 +99,25 @@ exports.postLogin=(req,res,next)=>{
                     }
                     else
                     {
-                        if(user.emailVerified)
-                            res.status(200).json({msg: "Successfully logged in!", 
-                                                authenticated: true, 
-                                                emailVerified: true, 
-                                                user: {firstName: user.firstName, 
-                                                    lastName: user.lastName, 
-                                                    email: user.email, 
-                                                    gender: user.gender, 
-                                                    imgUrl: user.imgUrl, 
-                                                    dateCreated: user.dateCreated, 
-                                                    starred: user.starred, 
-                                                    uploaded: user.uploaded, 
-                                                    emailVerified: user.emailVerified}
-                                                })
-                        else
-                            res.status(401).json({msg: "Your email is yet not verified!", 
-                                                authenticated: true, 
-                                                emailVerified: false, 
-                                                user: {firstName: user.firstName, 
-                                                    lastName: user.lastName, 
-                                                    email: user.email, 
-                                                    gender: user.gender, 
-                                                    imgUrl: user.imgUrl, 
-                                                    dateCreated: user.dateCreated, 
-                                                    starred: user.starred, 
-                                                    uploaded: user.uploaded, 
-                                                    emailVerified: user.emailVerified}
-                                                })
+                            const token=jwt.sign(
+                                {
+                                    firstName: user.firstName, 
+                                    lastName: user.lastName, 
+                                    email: user.email, 
+                                    gender: user.gender, 
+                                    imgUrl: user.imgUrl, 
+                                    dateCreated: user.dateCreated, 
+                                    starred: user.starred, 
+                                    uploaded: user.uploaded, 
+                                    emailVerified: user.emailVerified
+                                },
+                                'youAlreadyKnowIwannaFuckyoukatrinakaifIamafuckingmultibillionaire',
+                                {expiresIn: '1h'}
+                            )
+
+                            res.status(200).json(
+                                    {token: token, expiresIn: 3600*1000}
+                                )
                     }
                 }
             )
