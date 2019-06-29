@@ -46,9 +46,9 @@ exports.postSignup=(req,res,next)=>{
                     user.save()
                     .then(result=>{
                         // console.log(result)
-                        res.status(201).json({msg: 'Details successfully stored! A link has been sent to your email, click the link to verify your email. (Mail might be stored in spam section)'})
-                        console.log("Result")
-                        console.log(result._id)
+                        res.status(201).json({msg: 'Details successfully stored! A link has been sent to your email, click the link to verify your email. (Mail might be stored in spam section)',user: {}})
+                        // console.log("Result")
+                        // console.log(result._id)
                         transporter.sendMail({
                             to: result.email,
                             from: 'coconut8catalogue@gmail.com',
@@ -85,9 +85,9 @@ exports.postLogin=(req,res,next)=>{
 
     User.findOne({email: email})
     .then(user=>{
-        console.log(user)
+        // console.log(user)
         if(!user)
-            res.status(401).json({msg: "Email not found", authenticated: false, user: {}})
+            res.status(401).json({msg: "Email not found",token: null, expiresIn: null})
         else
         {
             bcrypt.compare(password,user.password)
@@ -95,7 +95,7 @@ exports.postLogin=(req,res,next)=>{
                 doMatch=>{
                     if(!doMatch)
                     {
-                        res.status(401).json({msg: "Incorrect password", authenticated: false, user: {}})
+                        res.status(401).json({msg: "Incorrect password",token: null, expiresIn: null})
                     }
                     else
                     {
@@ -116,7 +116,7 @@ exports.postLogin=(req,res,next)=>{
                             )
 
                             res.status(200).json(
-                                    {token: token, expiresIn: 3600*1000}
+                                    {msg: "Logged In successfully",token: token, expiresIn: 3600*1000}
                                 )
                     }
                 }

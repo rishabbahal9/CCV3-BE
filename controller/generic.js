@@ -9,7 +9,7 @@ exports.getSubjectDocs=(req,res,next)=>{
     var totalD;
 
     Doc.find({subject: subject,authorized: true})
-    .count()
+    .countDocuments()
     .then(totalDocs=>{
         totalD=totalDocs;
         totalPages=parseInt(totalDocs/ITEMS_PER_PAGE);
