@@ -40,6 +40,12 @@ const userSchema=new Schema(
         },
         uploaded: {
             type: Array
+        },
+        pwdToken: {
+            type: String
+        },
+        pwdTokenExp: {
+            type: Date
         }
     }
 )

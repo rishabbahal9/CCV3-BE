@@ -9,5 +9,11 @@ router.post('/signup',authController.postSignup)
 router.post('/login',authController.postLogin)
 //PATCH /auth/userAuthentication/:ObjectID
 router.patch('/userAuthentication/:ObjectID',authController.patchUserAuthenticated)
+// POST /auth/forgotPassword
+router.post('/forgotPassword',authController.forgotPassword)
+// POST auth/resetPassword
+router.post('/resetPassword',authController.resetPassword)
+// POST auth/resetPasswordSubmit
+router.post('/resetPasswordSubmit',authController.resetPasswordSubmit)
 
 module.exports=router
