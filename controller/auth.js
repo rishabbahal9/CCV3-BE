@@ -21,7 +21,15 @@ exports.postSignup=(req,res,next)=>{
     const gender=req.body.gender;
     const email=req.body.email;
     var password=req.body.password;
-    const imgUrl=req.body.imgUrl;
+    var imgUrl=req.body.imgUrl;
+    if(gender=="male")
+    {
+        imgUrl="assets/images/m_img_avatar.png";
+    }
+    else
+    {
+        imgUrl="assets/images/f_img_avatar.png";
+    }
     const dateCreated=Date.now()
     
     //Encrypting password
