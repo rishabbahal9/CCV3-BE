@@ -1,6 +1,7 @@
 const express=require('express')
 const router=express.Router()
 
+const isAuth=require('./../controller/isAuth')
 const authController=require('./../controller/auth')
 
 // POST /auth/signup
@@ -15,5 +16,7 @@ router.post('/forgotPassword',authController.forgotPassword)
 router.post('/resetPassword',authController.resetPassword)
 // POST auth/resetPasswordSubmit
 router.post('/resetPasswordSubmit',authController.resetPasswordSubmit)
+// POST auth/changePasswordSubmit
+router.post('/changePasswordSubmit',isAuth,authController.changePasswordSubmit)
 
 module.exports=router

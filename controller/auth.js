@@ -38,14 +38,17 @@ exports.postSignup=(req,res,next)=>{
         const user=new User({
             firstName: firstName,
             lastName: lastName,
-            gender: gender,
             email:email,
             password: hashedPassword,
+            gender: gender,
             imgUrl: imgUrl,
-            emailVerified: false,
             dateCreated:dateCreated,
+            emailVerified: false,
+            starred: null, 
+            uploaded: null, 
             pwdToken: null,
-            pwdTokenExp: null
+            pwdTokenExp: null,
+            admin: false
             })
 
             User.findOne({email: email})
@@ -118,11 +121,12 @@ exports.postLogin=(req,res,next)=>{
                                     gender: user.gender, 
                                     imgUrl: user.imgUrl, 
                                     dateCreated: user.dateCreated, 
+                                    emailVerified: user.emailVerified,
                                     starred: user.starred, 
                                     uploaded: user.uploaded, 
-                                    emailVerified: user.emailVerified,
                                     pwdToken: user.pwdToken,
-                                    pwdTokenExp: user.pwdTokenExp
+                                    pwdTokenExp: user.pwdTokenExp,
+                                    admin: user.admin
                                 },
                                 'youAlreadyKnowIwannaFuckyoukatrinakaifIamafuckingmultibillionaire',
                                 {expiresIn: '1h'}
@@ -263,4 +267,42 @@ exports.resetPasswordSubmit=(req,res,next)=>{
             return res.status(408).json({msg: "Link expired: Go to Forgot password again."});
         })
     }
+}
+
+exports.changePasswordSubmit= (req,res,next)=>
+{
+    const email=req.body.email;
+    const currentPassword=req.body.currentPassword;
+    const password=req.body.password;
+    const cpassword=req.body.cpassword;
+
+    User.findOne({email:email})
+    .then(user=>{
+        bcrypt.compare(currentPassword,user.password)
+        .then(
+            doMatch=>{
+                if(doMatch)
+                {
+                    if(password==cpassword)
+                    {
+                        bcrypt.hash(password,12)
+                        .then(hashedPassword=>{
+                            user.password=hashedPassword
+                            user.save()
+                            res.status(200).json({msg: 'Password has been successfully changed.'})
+                        })                    
+                    }
+                    else
+                    {
+                        res.status(500).json({msg: 'New password cant be confirmed.'})
+                    }
+                }
+                else
+                {
+                    res.status(500).json({msg: 'Wrong current password.'})
+                }
+            }
+        )
+    })
+    
 }

@@ -35,6 +35,10 @@ const userSchema=new Schema(
             type: Date,
             required: true
         },
+        admin:{
+            type: Boolean,
+            required: true
+        },
         starred: {
             type: Array
         },
