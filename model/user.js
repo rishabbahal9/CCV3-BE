@@ -50,6 +50,9 @@ const userSchema=new Schema(
         },
         pwdTokenExp: {
             type: Date
+        },
+        bio:{
+            type:String           
         }
     }
 )

@@ -18,5 +18,8 @@ router.post('/resetPassword',authController.resetPassword)
 router.post('/resetPasswordSubmit',authController.resetPasswordSubmit)
 // POST auth/changePasswordSubmit
 router.post('/changePasswordSubmit',isAuth,authController.changePasswordSubmit)
+// POST auth/updateProfileSubmit
+router.post('/updateProfileSubmit',isAuth,authController.updateProfileSubmit)
+
 
 module.exports=router

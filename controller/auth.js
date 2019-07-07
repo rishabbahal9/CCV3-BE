@@ -48,7 +48,8 @@ exports.postSignup=(req,res,next)=>{
             uploaded: null, 
             pwdToken: null,
             pwdTokenExp: null,
-            admin: false
+            admin: false,
+            bio: null
             })
 
             User.findOne({email: email})
@@ -126,7 +127,8 @@ exports.postLogin=(req,res,next)=>{
                                     uploaded: user.uploaded, 
                                     pwdToken: user.pwdToken,
                                     pwdTokenExp: user.pwdTokenExp,
-                                    admin: user.admin
+                                    admin: user.admin,
+                                    bio: user.bio
                                 },
                                 'youAlreadyKnowIwannaFuckyoukatrinakaifIamafuckingmultibillionaire',
                                 {expiresIn: '1h'}
@@ -305,4 +307,28 @@ exports.changePasswordSubmit= (req,res,next)=>
         )
     })
     
+}
+
+exports.updateProfileSubmit=(req,res,next)=>{
+    const email=req.body.email;
+    const firstName=req.body.firstName;
+    const lastName=req.body.lastName;
+    const gender=req.body.gender;
+    const bio=req.body.bio;
+
+    User.findOne({email: email})
+    .then(
+        user=>{
+            user.firstName=firstName;
+            user.lastName=lastName;
+            user.gender=gender;
+            user.bio=bio;
+            user.save()
+            res.status(200).json({msg: "Profile successfully updated"})
+        },
+        err=>{
+            console.log(err)
+            res.status(500).json({msg: "Could not update user!"})
+        }
+    )
 }
