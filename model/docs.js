@@ -22,13 +22,21 @@ const docsSchema=new Schema(
         },
         author: {
             type: Schema.Types.ObjectId,
-            ref: User
+            ref: User,
+            required: true
         },
         dateCreated: {
-            type: Date
+            type: Date,
+            required: true
         },
         dateAuthorized: {
             type: Date
+        },
+        views: {
+            type: Number
+        },
+        comments: {
+            type: Array
         }
     }
 )

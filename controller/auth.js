@@ -1,5 +1,6 @@
 const bcrypt=require('bcryptjs')
 const User=require('./../model/user')
+const Doc=require('./../model/docs')
 const jwt=require('jsonwebtoken')
 const crypto=require('crypto')
 
@@ -171,7 +172,7 @@ exports.forgotPassword=(req,res,next)=>{
         console.log(userStored)
         if(!userStored)
         {
-            res.status(406).json({msg: `Email ${email} is not registered with us.`})
+            return res.status(406).json({msg: `Email ${email} is not registered with us.`})
         }
         crypto.randomBytes(32,(err,buffer)=>{
             if(err)
@@ -331,4 +332,39 @@ exports.updateProfileSubmit=(req,res,next)=>{
             res.status(500).json({msg: "Could not update user!"})
         }
     )
+}
+
+exports.addDocPost=(req,res,next)=>{
+    const heading=req.body.heading;
+    const text=req.body.text;
+    const subject=req.body.subject;
+    const authorized=true;
+    const author=req.body.author;
+    const dateCreated=new Date();
+    const dateAuthorized=null;
+    const views=0;
+    const comments=null;
+
+    const doc=new Doc({
+        heading: heading,
+        text: text,
+        subject: subject,
+        authorized: authorized,
+        author: author,
+        dateCreated: dateCreated,
+        dateAuthorized: dateAuthorized,
+        views: views,
+        comments: comments
+    })
+    doc.save()
+    .then(
+        result=>{
+            console.log(result)
+            res.status(200).json({msg: "Successfully uploaded!"})
+        }
+    )   
+    .catch(err=>{
+        console.log(err)
+        res.status(500).json({msg: "Could not upload!"})
+    })
 }
