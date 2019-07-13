@@ -20,6 +20,7 @@ router.post('/resetPasswordSubmit',authController.resetPasswordSubmit)
 router.post('/changePasswordSubmit',isAuth,authController.changePasswordSubmit)
 // POST auth/updateProfileSubmit
 router.post('/updateProfileSubmit',isAuth,authController.updateProfileSubmit)
-
+// POST auth/docUploadSubmit
+// router.post('/docUploadSubmit',authController.docUploadSubmit)
 
 module.exports=router
