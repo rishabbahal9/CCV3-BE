@@ -4,6 +4,7 @@ const Doc=require('./../model/docs')
 const jwt=require('jsonwebtoken')
 const crypto=require('crypto')
 
+
 const nodemailer=require('nodemailer')
 const sendgridTransport=require('nodemailer-sendgrid-transport')
 
@@ -15,6 +16,13 @@ const transporter=nodemailer.createTransport(
     })
 )
 
+
+exports.docUpload=(req,res,next)=>{
+    console.log("File uploaded successfully using multer:) "+new Date())
+    console.log("req.file:")
+    console.log(req.file)
+    res.status(200).json({ msg: "File uploaded successfully!", filename: req.file.filename, originalname: req.file.originalname })
+}
 
 exports.postSignup=(req,res,next)=>{
     const firstName=req.body.firstName;
@@ -369,7 +377,7 @@ exports.addDocPost=(req,res,next)=>{
     })
 }
 
-exports.docUploadFormSubmit=(req,res,next)=>{
+exports.docUploadFormSubmit=async (req,res,next)=>{
     console.log("Reached controller!")
     const heading= req.body.heading;
     const text= req.body.text;
@@ -377,6 +385,7 @@ exports.docUploadFormSubmit=(req,res,next)=>{
     const userEmail= req.body.userEmail;
     const filename= req.body.filename;
     const originalname= req.body.originalname;
+    var author=(await User.findOne({email: userEmail}))._id
 
     console.log("Heading: "+heading);
     console.log("Text: "+text);
@@ -384,5 +393,25 @@ exports.docUploadFormSubmit=(req,res,next)=>{
     console.log("User Email: "+userEmail);
     console.log("filename: "+filename);
     console.log("originalname: "+originalname);
-    return res.status(200).json({msg: "Docs form successfully uploaded!", success: true})
+    console.log("author: "+author);
+
+    const doc=new Doc({
+        heading: heading,
+        text: text,
+        subject: subject,
+        authorized: false,
+        userEmail: userEmail,
+        author: author, 
+        dateCreated: new Date(),
+        filename: filename,
+        originalname: originalname  
+    })
+    doc.save()
+    .then(result=>{
+        return res.status(200).json({msg: "Docs form successfully uploaded!", success: true})
+    })
+    .catch(err=>{
+        console.log(err)
+        return res.status(501).json({msg: "Docs form unsuccessful!", success: false})
+    })
 }

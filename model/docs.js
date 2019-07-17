@@ -20,6 +20,10 @@ const docsSchema=new Schema(
             type: Boolean,
             required: true
         },
+        userEmail: {
+            type: String,
+            required: true
+        },
         author: {
             type: Schema.Types.ObjectId,
             ref: User,
@@ -27,6 +31,14 @@ const docsSchema=new Schema(
         },
         dateCreated: {
             type: Date,
+            required: true
+        },
+        filename: {
+            type: String,
+            required: true
+        },
+        originalname: {
+            type: String,
             required: true
         },
         dateAuthorized: {
