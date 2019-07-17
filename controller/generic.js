@@ -8,7 +8,7 @@ exports.getSubjectDocs=(req,res,next)=>{
     var totalPages;
     var totalD;
 
-    Doc.find({subject: subject,authorized: true})
+    Doc.find({subject: subject,authorized: true,rejected: false})
     .countDocuments()
     .then(totalDocs=>{
         totalD=totalDocs;
@@ -22,6 +22,8 @@ exports.getSubjectDocs=(req,res,next)=>{
         .limit(ITEMS_PER_PAGE)
     })
     .then(docsArray=>{
+        console.log("DOCS Array:-")
+        console.log(docsArray)
         res.status(200).json({
             docsArray: docsArray,
             totalPages: totalPages,

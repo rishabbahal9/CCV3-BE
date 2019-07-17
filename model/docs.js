@@ -20,6 +20,10 @@ const docsSchema=new Schema(
             type: Boolean,
             required: true
         },
+        userFirstName: {
+            type: String,
+            required: true
+        },
         userEmail: {
             type: String,
             required: true
@@ -39,6 +43,10 @@ const docsSchema=new Schema(
         },
         originalname: {
             type: String,
+            required: true
+        },
+        rejected: {
+            type: Boolean,
             required: true
         },
         dateAuthorized: {

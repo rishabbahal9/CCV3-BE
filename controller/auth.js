@@ -53,8 +53,8 @@ exports.postSignup=(req,res,next)=>{
             imgUrl: imgUrl,
             dateCreated:dateCreated,
             emailVerified: false,
-            starred: null, 
-            uploaded: null, 
+            starred: [], 
+            uploaded: [], 
             pwdToken: null,
             pwdTokenExp: null,
             admin: false,
@@ -382,6 +382,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     const heading= req.body.heading;
     const text= req.body.text;
     const subject= req.body.subject;
+    const userFirstName= req.body.userFirstName;
     const userEmail= req.body.userEmail;
     const filename= req.body.filename;
     const originalname= req.body.originalname;
@@ -394,6 +395,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     console.log("filename: "+filename);
     console.log("originalname: "+originalname);
     console.log("author: "+author);
+    console.log("userFirstName: "+userFirstName);
 
     const doc=new Doc({
         heading: heading,
@@ -404,11 +406,34 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
         author: author, 
         dateCreated: new Date(),
         filename: filename,
-        originalname: originalname  
+        originalname: originalname,
+        userFirstName:userFirstName,
+        rejected: false  
     })
     doc.save()
     .then(result=>{
-        return res.status(200).json({msg: "Docs form successfully uploaded!", success: true})
+        User.findOne({email: result.userEmail})
+        .then(loadedUser=>{
+            arr=loadedUser.uploaded
+            arr.push(result._id)
+            loadedUser.uploaded=arr
+            loadedUser.save()
+            .then(response=>{
+                console.log("Success")
+                return res.status(200).json({msg: "Docs form successfully uploaded!", success: true})
+            })
+            .catch(err=>{
+                console.log("Error")
+                console.log(err)
+                return res.status(501).json({msg: "Docs form unsuccessful!", success: false})
+            })
+        })
+        .catch(err=>{
+            console.log("Error")
+            console.log(err)
+            return res.status(501).json({msg: "Docs form unsuccessful!", success: false})
+        })
+        
     })
     .catch(err=>{
         console.log(err)
