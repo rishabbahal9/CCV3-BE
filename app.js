@@ -13,6 +13,7 @@ const genericRoute=require('./routes/generic')
 // const mongodb_url="mongodb+srv://coconutAdmin:bTJPb4kC9usAmqve@rishab999-nhaqy.mongodb.net/coconutc"
 const mongodb_url="mongodb://127.0.0.1:27017/coconutc"
 const app=express()
+app.use(express.static('./UploadedDOCS'))
 const fileStorage=multer.diskStorage({
     destination: (req,file,cb)=>{
         cb(null,'./UploadedDOCS')
@@ -31,10 +32,11 @@ const fileFilter=(req,file,cb)=>{
         {
             return cb({message:'Only pdfs are allowed'},false)
         }
-  
         return cb(null, true)
 }
-var uploadD=multer({storage: fileStorage,fileFilter:fileFilter, limits: { fileSize: 80*1024*1024 }}).single('file')
+
+
+
 app.use(bodyParser.json())
 
 app.use((req,res,next)=>{
@@ -51,21 +53,12 @@ app.use((req,res,next)=>{
     console.log("Request: "+url)
     next()
 })
-
-app.use('/uploadDocs',(req,res,next)=>{
-    console.log("Reached here!!!")
-    uploadD(req,res,function(err){
-        if(err)
-        {
-            console.log("Reached here2!!!")
-            console.log(err)
-            return res.status(501).json({error: err})
-        }
-        console.log("Reached here3!!!")
-        console.log("Backend file:")
-        console.log(req.file)
-        return res.status(200).json({msg: "DOC successfully uploaded!"}) 
-    })
+var upload=multer({storage: fileStorage,fileFilter:fileFilter, limits: { fileSize: 80*1024*1024 }})
+app.post('/uploadDocs',upload.single('file'),(req,res,next)=>{
+    console.log("File uploaded successfully using multer:) "+new Date())
+    console.log("req.file:")
+    console.log(req.file)
+    res.status(200).json({ msg: "File uploaded successfully!", filename: req.file.filename, originalname: req.file.originalname })
 })
 
 app.use('/generic',genericRoute)

@@ -375,10 +375,14 @@ exports.docUploadFormSubmit=(req,res,next)=>{
     const text= req.body.text;
     const subject= req.body.subject;
     const userEmail= req.body.userEmail;
+    const filename= req.body.filename;
+    const originalname= req.body.originalname;
 
     console.log("Heading: "+heading);
     console.log("Text: "+text);
     console.log("Subject: "+subject);
     console.log("User Email: "+userEmail);
-    return res.status(200).json({msg: "Docs form successfully uploaded!"})
+    console.log("filename: "+filename);
+    console.log("originalname: "+originalname);
+    return res.status(200).json({msg: "Docs form successfully uploaded!", success: true})
 }
