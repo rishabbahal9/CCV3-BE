@@ -369,21 +369,16 @@ exports.addDocPost=(req,res,next)=>{
     })
 }
 
-exports.docUploadSubmit=(req,res,next)=>{
+exports.docUploadFormSubmit=(req,res,next)=>{
     console.log("Reached controller!")
     const heading= req.body.heading;
     const text= req.body.text;
     const subject= req.body.subject;
     const userEmail= req.body.userEmail;
 
-    const docFile=req.body.docFile;
-    const docFilePath=docFile.path;
-
     console.log("Heading: "+heading);
     console.log("Text: "+text);
     console.log("Subject: "+subject);
     console.log("User Email: "+userEmail);
-    console.log(docFilePath);
-    console.log(docFile);
-    return res.status(200).json({msg: "Doc successfully uploaded!"})
+    return res.status(200).json({msg: "Docs form successfully uploaded!"})
 }

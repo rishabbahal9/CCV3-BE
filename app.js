@@ -29,7 +29,7 @@ const fileFilter=(req,file,cb)=>{
         console.log(file)
         if (file.mimetype != 'application/pdf') 
         {
-            return cb(new Error('Only pdfs are allowed'))
+            return cb({message:'Only pdfs are allowed'},false)
         }
   
         return cb(null, true)
@@ -62,7 +62,9 @@ app.use('/uploadDocs',(req,res,next)=>{
             return res.status(501).json({error: err})
         }
         console.log("Reached here3!!!")
-        return res.status(200).json({msg: "successfully uploaded!"}) 
+        console.log("Backend file:")
+        console.log(req.file)
+        return res.status(200).json({msg: "DOC successfully uploaded!"}) 
     })
 })
 
