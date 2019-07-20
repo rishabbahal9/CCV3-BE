@@ -123,10 +123,19 @@ exports.postLogin=(req,res,next)=>{
                     }
                     else
                     {
+                            var firstNAme=user.firstName;
+                            var b1=new Buffer.from(firstNAme)
+                            firstNAme=b1.toString('base64')
+
+                            var lastNAme=user.lastName;
+                            var b2=new Buffer.from(lastNAme)
+                            lastNAme=b2.toString('base64')
+                            
+
                             const token=jwt.sign(
                                 {
-                                    firstName: user.firstName, 
-                                    lastName: user.lastName, 
+                                    firstName: firstNAme, 
+                                    lastName: lastNAme, 
                                     email: user.email, 
                                     gender: user.gender, 
                                     imgUrl: user.imgUrl, 
@@ -438,5 +447,35 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     .catch(err=>{
         console.log(err)
         return res.status(501).json({msg: "Docs form unsuccessful!", success: false})
+    })
+}
+
+exports.getUnauthDocs=(req,res,next)=>{
+    const ITEMS_PER_PAGE=4;
+    const page=req.params.page;
+    var totalPages;
+    var totalD;
+
+    Doc.find({authorized: false,rejected: false})
+    .countDocuments()
+    .then(totalDocs=>{
+        totalD=totalDocs;
+        totalPages=parseInt(totalDocs/ITEMS_PER_PAGE);
+        if((totalDocs%ITEMS_PER_PAGE)>0)
+        {
+            totalPages++;
+        }
+        return Doc.find({authorized: false,rejected: false})
+        .skip((page-1)*ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE)
+    })
+    .then(docsArray=>{
+        console.log("DOCS Array:-")
+        console.log(docsArray)
+        res.status(200).json({
+            docsArray: docsArray,
+            totalPages: totalPages,
+            totalDocs: totalD
+        })
     })
 }
