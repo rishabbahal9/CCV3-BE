@@ -479,3 +479,80 @@ exports.getUnauthDocs=(req,res,next)=>{
         })
     })
 }
+
+exports.authorizeDoc=(req,res,next)=>{
+    console.log("Req.body: authorize")
+    console.log(req.body)
+
+    Doc.findOne({filename: req.body.filename})
+    .then(recoveredDoc=>{
+        if(recoveredDoc)
+        {
+            recoveredDoc.authorized=true;
+            recoveredDoc.save()
+            .then(saved=>{
+                if(saved)
+                {
+                    res.status(200).json({
+                        success: true,
+                        status: "Doc authorized!"
+                    })
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+                res.status(500).json({
+                    success: false,
+                    status: "Could not authorize doc!"
+                })
+            })
+        }
+    })
+    .catch(err=>{
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            status: "Could not find doc to be authorized!"
+        })
+    })
+    
+}
+
+exports.rejectDoc=(req,res,next)=>{
+    console.log("Req.body: reject")
+    console.log(req.body)
+
+    Doc.findOne({filename: req.body.filename})
+    .then(recoveredDoc=>{
+        if(recoveredDoc)
+        {
+            recoveredDoc.rejected=true;
+            recoveredDoc.authorized=false;
+            recoveredDoc.save()
+            .then(saved=>{
+                if(saved)
+                {
+                    res.status(200).json({
+                        success: true,
+                        status: "Doc rejected!"
+                    })
+                }
+            })
+            .catch(err=>{
+                console.log(err)
+                res.status(500).json({
+                    success: false,
+                    status: "Could not reject doc!"
+                })
+            })
+        }
+    })
+    .catch(err=>{
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            status: "Could not find doc to be rejected!"
+        })
+    })
+    
+}

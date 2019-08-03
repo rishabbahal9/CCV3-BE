@@ -51,5 +51,9 @@ router.post('/docUploadFormSubmit',isAuth,authController.docUploadFormSubmit)
 router.post('/uploadDocs',upload.single('file'),authController.docUpload)
 // GET auth/admin/unauthDocs
 router.get('/admin/unauthDocs/:page',isAuth,authController.getUnauthDocs)
+// POST auth/admin/authorizeDoc
+router.post('/admin/authorizeDoc',isAuth,authController.authorizeDoc)
+// POST auth/admin/rejectDoc
+router.post('/admin/rejectDoc',isAuth,authController.rejectDoc)
 
 module.exports=router
