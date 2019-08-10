@@ -1,20 +1,31 @@
 const express=require('express')
 const router=express.Router()
-
 const multer=require('multer')
+var aws = require('aws-sdk')
+const multerS3 = require('multer-s3')
+
+aws.config.update({
+    secretAccessKey: 'osgc0t/tKMYeewPIbzCYfoyl0ZWbdvWt5nfjWbkr',
+    accessKeyId: 'AKIAIBVS4ZVN4SNYCKIA',
+    region: 'ap-south-1'
+});
+var s3 = new aws.S3()
+
+
 const isAuth=require('./../controller/isAuth')
 const authController=require('./../controller/auth')
 
 
-const fileStorage=multer.diskStorage({
-    destination: (req,file,cb)=>{
-        cb(null,'./UploadedDOCS')
+const fileStorage=multerS3({
+    s3: s3,
+    bucket: 'coconutc-docs',
+    acl: 'public-read',
+    key: function (req, file, cb) {
+        console.log(file);
+        var newFileName=new Date().toDateString()+'-'+new Date().getTime()+'-'+file.originalname;
+        var fullPath="docs/"+newFileName
+        cb(null,fullPath);
     },
-    filename: (req,file,cb)=>{
-        console.log("OriginalName")
-        console.log(file.originalname)
-        cb(null,new Date().toDateString()+'-'+new Date().getTime()+'-'+file.originalname)
-    }
 })
 const fileFilter=(req,file,cb)=>{
         console.log("File mimetype")

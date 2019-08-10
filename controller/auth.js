@@ -21,7 +21,11 @@ exports.docUpload=(req,res,next)=>{
     console.log("File uploaded successfully using multer:) "+new Date())
     console.log("req.file:")
     console.log(req.file)
-    res.status(200).json({ msg: "File uploaded successfully!", filename: req.file.filename, originalname: req.file.originalname })
+    console.log("req.file.location: #######")
+    console.log(req.file.location)
+    console.log("req.file.key: #######")
+    console.log(req.file.key)
+    res.status(200).json({ msg: "File uploaded successfully!", filename: req.file.key, fileLocation: req.file.location, originalname: req.file.originalname })
 }
 
 exports.postSignup=(req,res,next)=>{
@@ -388,11 +392,13 @@ exports.addDocPost=(req,res,next)=>{
 
 exports.docUploadFormSubmit=async (req,res,next)=>{
     console.log("Reached controller!")
+    console.log(req.body)
     const heading= req.body.heading;
     const text= req.body.text;
     const subject= req.body.subject;
     const userFirstName= req.body.userFirstName;
     const userEmail= req.body.userEmail;
+    const fileLocation= req.body.fileLocation;
     const filename= req.body.filename;
     const originalname= req.body.originalname;
     var author=(await User.findOne({email: userEmail}))._id
@@ -401,6 +407,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     console.log("Text: "+text);
     console.log("Subject: "+subject);
     console.log("User Email: "+userEmail);
+    console.log("fileLocation: "+fileLocation);
     console.log("filename: "+filename);
     console.log("originalname: "+originalname);
     console.log("author: "+author);
@@ -414,6 +421,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
         userEmail: userEmail,
         author: author, 
         dateCreated: new Date(),
+        fileLocation: fileLocation,
         filename: filename,
         originalname: originalname,
         userFirstName:userFirstName,

@@ -37,6 +37,10 @@ const docsSchema=new Schema(
             type: Date,
             required: true
         },
+        fileLocation: {
+            type: String,
+            required: true
+        },
         filename: {
             type: String,
             required: true
