@@ -11,20 +11,20 @@ const sendgridTransport=require('nodemailer-sendgrid-transport')
 const transporter=nodemailer.createTransport(
     sendgridTransport({
         auth: {
-            api_key: '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'
+            api_key: process.env.sendGridAPIKey
         }
     })
 )
 
 
 exports.docUpload=(req,res,next)=>{
-    console.log("File uploaded successfully using multer:) "+new Date())
-    console.log("req.file:")
-    console.log(req.file)
-    console.log("req.file.location: #######")
-    console.log(req.file.location)
-    console.log("req.file.key: #######")
-    console.log(req.file.key)
+    // console.log("File uploaded successfully using multer:) "+new Date())
+    // console.log("req.file:")
+    // console.log(req.file)
+    // console.log("req.file.location: #######")
+    // console.log(req.file.location)
+    // console.log("req.file.key: #######")
+    // console.log(req.file.key)
     res.status(200).json({ msg: "File uploaded successfully!", filename: req.file.key, fileLocation: req.file.location, originalname: req.file.originalname })
 }
 
@@ -79,13 +79,13 @@ exports.postSignup=(req,res,next)=>{
                         // console.log(result._id)
                         transporter.sendMail({
                             to: result.email,
-                            from: 'coconut8catalogue@gmail.com',
+                            from: process.env.mailFrom,
                             subject: 'Email verify: Coconut Catalogue',
                             html: `
                             <h1>Email verify</h1>
                             <p>Click the link below to verify your email..
                             </p>
-                            <a href="http://127.0.0.1:4200/emailVerify/${result._id}">Verify</a>
+                            <a href="${process.env.frontEndLink}/emailVerify/${result._id}">Verify</a>
                             `
                         })
                     })
@@ -152,7 +152,7 @@ exports.postLogin=(req,res,next)=>{
                                     admin: user.admin,
                                     bio: user.bio
                                 },
-                                'youAlreadyKnowIwannaFuckyoukatrinakaifIamafuckingmultibillionaire',
+                                process.env.loginToken,
                                 {expiresIn: '1h'}
                             )
 
@@ -189,8 +189,8 @@ exports.forgotPassword=(req,res,next)=>{
 
     User.findOne({email: email})
     .then(userStored=>{
-        console.log("userStored")
-        console.log(userStored)
+        // console.log("userStored")
+        // console.log(userStored)
         if(!userStored)
         {
             return res.status(406).json({msg: `Email ${email} is not registered with us.`})
@@ -201,20 +201,20 @@ exports.forgotPassword=(req,res,next)=>{
                 return console.log(err)
             }
             const token=buffer.toString('hex')
-            console.log(token)
+            // console.log(token)
             userStored.pwdToken=token
             userStored.pwdTokenExp=new Date(new Date().getTime()+3600000)
             userStored.save()
             return transporter.sendMail({
                 to: userStored.email,
-                from: 'coconut8catalogue@gmail.com',
+                from: process.env.mailFrom,
                 subject: 'Reset password: Coconut Catalogue',
                 html: `
                 <h1>Reset password link</h1>
                 <p>Go to the below link to reset password:-<br>
                 Link will expire after 1 hour.
                 </p>
-                <a href="http://127.0.0.1:4200/user/resetPassword/${userStored.pwdToken}">Reset password</a>
+                <a href="${process.env.frontEndLink}/user/resetPassword/${userStored.pwdToken}">Reset password</a>
                 `
             })
         })
@@ -232,10 +232,10 @@ exports.resetPassword=(req,res,next)=>{
     User.findOne({pwdToken:pwdToken})
     .then(
         user=>{
-            console.log("Accessing backend data:")
-            console.log(user.pwdToken)
-            console.log(user.pwdTokenExp.getTime())
-            console.log(new Date().getTime())
+            // console.log("Accessing backend data:")
+            // console.log(user.pwdToken)
+            // console.log(user.pwdTokenExp.getTime())
+            // console.log(new Date().getTime())
             if(user.pwdToken==pwdToken)
             {
                 if(new Date().getTime()<user.pwdTokenExp.getTime())
@@ -380,7 +380,7 @@ exports.addDocPost=(req,res,next)=>{
     doc.save()
     .then(
         result=>{
-            console.log(result)
+            // console.log(result)
             res.status(200).json({msg: "Successfully uploaded!"})
         }
     )   
@@ -391,8 +391,8 @@ exports.addDocPost=(req,res,next)=>{
 }
 
 exports.docUploadFormSubmit=async (req,res,next)=>{
-    console.log("Reached controller!")
-    console.log(req.body)
+    // console.log("Reached controller!")
+    // console.log(req.body)
     const heading= req.body.heading;
     const text= req.body.text;
     const subject= req.body.subject;
@@ -403,15 +403,15 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     const originalname= req.body.originalname;
     var author=(await User.findOne({email: userEmail}))._id
 
-    console.log("Heading: "+heading);
-    console.log("Text: "+text);
-    console.log("Subject: "+subject);
-    console.log("User Email: "+userEmail);
-    console.log("fileLocation: "+fileLocation);
-    console.log("filename: "+filename);
-    console.log("originalname: "+originalname);
-    console.log("author: "+author);
-    console.log("userFirstName: "+userFirstName);
+    // console.log("Heading: "+heading);
+    // console.log("Text: "+text);
+    // console.log("Subject: "+subject);
+    // console.log("User Email: "+userEmail);
+    // console.log("fileLocation: "+fileLocation);
+    // console.log("filename: "+filename);
+    // console.log("originalname: "+originalname);
+    // console.log("author: "+author);
+    // console.log("userFirstName: "+userFirstName);
 
     const doc=new Doc({
         heading: heading,
@@ -436,7 +436,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
             loadedUser.uploaded=arr
             loadedUser.save()
             .then(response=>{
-                console.log("Success")
+                // console.log("Success")
                 return res.status(200).json({msg: "Docs form successfully uploaded!", success: true})
             })
             .catch(err=>{
@@ -459,7 +459,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
 }
 
 exports.getUnauthDocs=(req,res,next)=>{
-    const ITEMS_PER_PAGE=4;
+    const ITEMS_PER_PAGE=parseInt(process.env.unauth_ITEMS_PER_PAGE);
     const page=req.params.page;
     var totalPages;
     var totalD;
@@ -478,8 +478,8 @@ exports.getUnauthDocs=(req,res,next)=>{
         .limit(ITEMS_PER_PAGE)
     })
     .then(docsArray=>{
-        console.log("DOCS Array:-")
-        console.log(docsArray)
+        // console.log("DOCS Array:-")
+        // console.log(docsArray)
         res.status(200).json({
             docsArray: docsArray,
             totalPages: totalPages,
@@ -489,8 +489,8 @@ exports.getUnauthDocs=(req,res,next)=>{
 }
 
 exports.authorizeDoc=(req,res,next)=>{
-    console.log("Req.body: authorize")
-    console.log(req.body)
+    // console.log("Req.body: authorize")
+    // console.log(req.body)
 
     Doc.findOne({filename: req.body.filename})
     .then(recoveredDoc=>{
@@ -527,8 +527,8 @@ exports.authorizeDoc=(req,res,next)=>{
 }
 
 exports.rejectDoc=(req,res,next)=>{
-    console.log("Req.body: reject")
-    console.log(req.body)
+    // console.log("Req.body: reject")
+    // console.log(req.body)
 
     Doc.findOne({filename: req.body.filename})
     .then(recoveredDoc=>{

@@ -2,6 +2,8 @@
 //Designing backend API for coconutcV3
 const http=require('http')
 
+const dotenv=require('dotenv')
+dotenv.config()
 const express=require('express')
 const bodyParser=require('body-parser')
 const mongoose=require('mongoose')
@@ -10,8 +12,8 @@ const mongoose=require('mongoose')
 const authRoute=require('./routes/auth')
 const genericRoute=require('./routes/generic')
 
-const mongodb_url="mongodb+srv://coconutAdmin:bTJPb4kC9usAmqve@rishab999-nhaqy.mongodb.net/coconutc"
-// const mongodb_url="mongodb://127.0.0.1:27017/coconutc"
+const mongodb_url=process.env.MONGODB_URL
+
 const app=express()
 app.use(express.static('./UploadedDOCS'))
 
@@ -41,7 +43,7 @@ app.use((req,res,next)=>{
 })
 
 mongoose.connect(mongodb_url,{useNewUrlParser: true})
-.then(()=>{app.listen(3000);console.log("Listening to port 3000")})
+.then(()=>{app.listen(process.env.PORT);console.log(`Listening to port ${process.env.PORT}...`)})
 .catch((err)=>{console.log(err)})
 
 // app.listen(3000,(err)=>{

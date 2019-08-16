@@ -5,8 +5,8 @@ var aws = require('aws-sdk')
 const multerS3 = require('multer-s3')
 
 aws.config.update({
-    secretAccessKey: 'osgc0t/tKMYeewPIbzCYfoyl0ZWbdvWt5nfjWbkr',
-    accessKeyId: 'AKIAIBVS4ZVN4SNYCKIA',
+    secretAccessKey: process.env.aws_secretAccessKey,
+    accessKeyId: process.env.aws_accessKeyId,
     region: 'ap-south-1'
 });
 var s3 = new aws.S3()
@@ -18,7 +18,7 @@ const authController=require('./../controller/auth')
 
 const fileStorage=multerS3({
     s3: s3,
-    bucket: 'coconutc-docs',
+    bucket: process.env.multerS3_Bucket,
     acl: 'public-read',
     key: function (req, file, cb) {
         console.log(file);

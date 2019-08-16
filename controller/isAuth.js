@@ -1,8 +1,8 @@
 const jwt=require('jsonwebtoken')
 
 module.exports=(req,res,next)=>{
-    console.log("AUTHORIZATION####################")
-    console.log(req.get('Authorization'))
+    // console.log("AUTHORIZATION####################")
+    // console.log(req.get('Authorization'))
     var token=null;
     if(req.get('Authorization'))
     {
@@ -12,7 +12,7 @@ module.exports=(req,res,next)=>{
         let decodedToken;
         try
         {
-            decodedToken=jwt.verify(token,'youAlreadyKnowIwannaFuckyoukatrinakaifIamafuckingmultibillionaire');
+            decodedToken=jwt.verify(token,process.env.loginToken);
         }
         catch(err)
         {
