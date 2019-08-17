@@ -12,6 +12,14 @@ const docsSchema=new Schema(
             type: String,
             required: true
         },
+        course:{
+            type: String,
+            required: true
+        },
+        stream:{
+            type: String,
+            required: true
+        },
         subject: {
             type: String,
             required: true

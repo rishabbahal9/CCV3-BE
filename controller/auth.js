@@ -401,8 +401,9 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     const fileLocation= req.body.fileLocation;
     const filename= req.body.filename;
     const originalname= req.body.originalname;
-    var author=(await User.findOne({email: userEmail}))._id
-
+    var author=(await User.findOne({email: userEmail}))._id;
+    const course=req.body.course;
+    const stream=req.body.stream;
     // console.log("Heading: "+heading);
     // console.log("Text: "+text);
     // console.log("Subject: "+subject);
@@ -416,6 +417,8 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     const doc=new Doc({
         heading: heading,
         text: text,
+        course: course,
+        stream: stream,
         subject: subject,
         authorized: false,
         userEmail: userEmail,
@@ -425,7 +428,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
         filename: filename,
         originalname: originalname,
         userFirstName:userFirstName,
-        rejected: false  
+        rejected: false
     })
     doc.save()
     .then(result=>{
