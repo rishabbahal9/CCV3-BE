@@ -29,6 +29,7 @@ app.use((req,res,next)=>{
 
 
 
+
 app.use((req,res,next)=>{
     const url=req.url;
     console.log("Request: "+url)
@@ -37,6 +38,7 @@ app.use((req,res,next)=>{
 
 app.use('/generic',genericRoute)
 app.use('/auth',authRoute)
+
 
 app.use((req,res,next)=>{
     res.send("Error 404:page not found!")
