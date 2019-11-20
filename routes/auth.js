@@ -54,6 +54,12 @@ router.post('/resetPassword',authController.resetPassword)
 router.post('/resetPasswordSubmit',authController.resetPasswordSubmit)
 // POST auth/changePasswordSubmit
 router.post('/changePasswordSubmit',isAuth,authController.changePasswordSubmit)
+// GET auth/getProfileData/:emailID
+router.get('/getProfileData/:emailID',isAuth,authController.getProfileData)
+// GET auth/getProfileAllUploadedDocs/:emailID/:page
+router.get('/getProfileAllUploadedDocs/:emailID/:page',isAuth,authController.getProfileAllUploadedDocs)
+// GET auth/getProfileAllSavedDocs/:emailID/:page
+router.get('/getProfileAllSavedDocs/:emailID/:page',isAuth,authController.getProfileAllSavedDocs)
 // POST auth/updateProfileSubmit
 router.post('/updateProfileSubmit',isAuth,authController.updateProfileSubmit)
 // POST auth/docUploadFormSubmit
@@ -66,5 +72,6 @@ router.get('/admin/unauthDocs/:page',isAuth,authController.getUnauthDocs)
 router.post('/admin/authorizeDoc',isAuth,authController.authorizeDoc)
 // POST auth/admin/rejectDoc
 router.post('/admin/rejectDoc',isAuth,authController.rejectDoc)
+
 
 module.exports=router

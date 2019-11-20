@@ -22,8 +22,8 @@ exports.getSubjectDocs=(req,res,next)=>{
         .limit(ITEMS_PER_PAGE)
     })
     .then(docsArray=>{
-        // console.log("DOCS Array:-")
-        // console.log(docsArray)
+        console.log("DOCS Array:-")
+        console.log(docsArray)
         res.status(200).json({
             docsArray: docsArray,
             totalPages: totalPages,

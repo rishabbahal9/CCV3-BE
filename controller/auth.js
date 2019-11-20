@@ -8,6 +8,8 @@ const crypto=require('crypto')
 const nodemailer=require('nodemailer')
 const sendgridTransport=require('nodemailer-sendgrid-transport')
 
+const ITEMS_PER_PAGE=parseInt(process.env.ITEMS_PER_PAGE_GENERIC); 
+
 const transporter=nodemailer.createTransport(
     sendgridTransport({
         auth: {
@@ -29,10 +31,10 @@ exports.docUpload=(req,res,next)=>{
 }
 
 exports.postSignup=(req,res,next)=>{
-    const firstName=req.body.firstName;
-    const lastName=req.body.lastName;
+    const firstName=req.body.firstName.trim();
+    const lastName=req.body.lastName.trim();
     const gender=req.body.gender;
-    const email=req.body.email;
+    const email=req.body.email.trim();
     var password=req.body.password;
     var imgUrl=req.body.imgUrl;
     if(gender=="male")
@@ -566,4 +568,137 @@ exports.rejectDoc=(req,res,next)=>{
         })
     })
     
+}
+
+exports.getProfileData=(req,res,next)=>{
+    var profileEmail=req.params.emailID
+    User.aggregate([
+        {$match: {email: profileEmail}},
+		{"$lookup": {
+		"from": "docs",
+		"let": { "classIds": "$starred" },
+		"pipeline": [
+		{ "$match": {
+		"$expr": { "$in": [ "$_id", "$$classIds" ] }
+		}},
+		{ "$addFields": {
+		"sort": {
+		"$indexOfArray": [ "$$classIds", "$_id" ]
+		}
+		}},
+		{ "$sort": { "sort": -1 } },
+		{ "$addFields": { "sort": "$$REMOVE" }}
+		],
+		"as": "starredDocs"
+		}},
+        {$lookup: {
+            from: "docs",
+            localField: "uploaded",
+            foreignField: "_id",
+            as: "uploadedDocs"
+        }},
+		{$project: {_id:0,firstName:1,lastName:1,email:1,gender:1,imgUrl:1,dateCreated:1,emailVerified:1,admin:1,bio:1,starredDocs:{$reverseArray: "$starredDocs"} ,uploadedDocs:{$reverseArray: "$uploadedDocs"}}},
+		{$project: {firstName:1,lastName:1,email:1,gender:1,imgUrl:1,dateCreated:1,emailVerified:1,admin:1,bio:1,starredDocs:{$slice: ["$starredDocs",3]},uploadedDocs:{$slice: ["$uploadedDocs",3]}}},		
+        {$unwind: {path: "$starredDocs","preserveNullAndEmptyArrays": true}},
+        {$project: {"starredDocs._id":0,"starredDocs.comments":0}},
+        {$group:{_id:{firstName:"$firstName",lastName:"$lastName",email:"$email",gender:"$gender",imgUrl:"$imgUrl",dateCreated:"$dateCreated",emailVerified:"$emailVerified",admin:"$admin",bio:"$bio",uploadedDocs:"$uploadedDocs"},starredDocs: {$push: "$starredDocs"}}},
+        {$project: {_id:1,starredDocs:1,uploadedDocs: "$_id.uploadedDocs"}},
+        {$project: {"_id.uploadedDocs":0}},
+        {$unwind: {path: "$uploadedDocs","preserveNullAndEmptyArrays": true}},
+        {$project: {"uploadedDocs._id":0,"uploadedDocs.comments":0}},
+        {$group:{_id:{firstName:"$_id.firstName",lastName:"$_id.lastName",email:"$_id.email",gender:"$_id.gender",imgUrl:"$_id.imgUrl",dateCreated:"$_id.dateCreated",emailVerified:"$_id.emailVerified",admin:"$_id.admin",bio:"$_id.bio",starredDocs:"$starredDocs"},uploadedDocs: {$push: "$uploadedDocs"}}},
+        {$project: {_id: 0, firstName: "$_id.firstName", lastName: "$_id.lastName",email: "$_id.email", imgUrl: "$_id.imgUrl",gender: "$_id.gender", dateCreated: "$_id.dateCreated",bio: "$_id.bio",emailVerified: "$_id.emailVerified", admin: "$_id.admin",starredDocs: "$_id.starredDocs", uploadedDocs: "$uploadedDocs"}}
+        ])				
+        .then(data=>{
+            // console.log(data[0])
+            if(data[0]!=undefined)
+            {
+                res.status(200).json({profileData: data[0]})
+            }
+            else
+            {
+                var errr="Problem in executing request!"
+                console.log(errr)
+                res.status(500).json(errr)
+            }
+
+        })
+        .catch(err=>{
+            console.log(err)
+            res.status(500).json("Error occured!")
+        })
+    
+}
+
+exports.getProfileAllUploadedDocs=(req,res,next)=>{
+    var profileEmail=req.params.emailID
+    page=req.params.page
+    Doc.find({userEmail: profileEmail})
+        .countDocuments()
+        .then(totalDocs=>{
+            totalD=totalDocs;
+            totalPages=parseInt(totalDocs/ITEMS_PER_PAGE);
+            if((totalDocs%ITEMS_PER_PAGE)>0)
+            {
+                totalPages++;
+            }
+            return Doc.aggregate([
+                {$match:{userEmail: profileEmail}},
+                {$sort:{dateCreated: -1}}
+                ])
+            .skip((page-1)*ITEMS_PER_PAGE)
+            .limit(ITEMS_PER_PAGE)
+        })
+        .then(docsArray=>{
+            // console.log("DOCS Array:-")
+            // console.log(docsArray)
+            res.status(200).json({
+                docsArray: docsArray,
+                totalPages: totalPages,
+                totalDocs: totalD
+            })
+        })
+}
+
+exports.getProfileAllSavedDocs=(req,res,next)=>{
+    var profileEmail=req.params.emailID
+    var page=req.params.page
+    User.aggregate([
+        {$match: {email: profileEmail}},
+        {$project: {starred: {$reverseArray: "$starred"}}},
+        {$lookup: {
+        from: "docs",
+        let: { "classIds": "$starred" },
+        pipeline: [
+        { "$match": {
+        "$expr": { "$in": [ "$_id", "$$classIds" ] }
+        }},
+        { "$addFields": {
+        sort: {
+        "$indexOfArray": [ "$$classIds", "$_id" ]
+        }
+        }},
+        { "$sort": { "sort": -1 } },
+        { "$addFields": { "sort": "$$REMOVE" }}
+        ],
+        as: "starredDocs"
+        }},
+        {$project: {starredDocs: 1,_id:0}}
+        ])
+    .skip((page-1)*ITEMS_PER_PAGE)
+    .limit(ITEMS_PER_PAGE)
+    .then(docsDetails=>{
+        var docsArray=docsDetails[0].starredDocs
+        var totalDocs=docsDetails[0].starredDocs.length
+        var totalPages=parseInt(totalDocs/ITEMS_PER_PAGE);
+        if((totalDocs%ITEMS_PER_PAGE)>0)
+        {
+            totalPages++;
+        }
+        res.status(200).json({
+            docsArray: docsArray,
+            totalPages: totalPages,
+            totalDocs: totalDocs
+        })
+    })
 }
