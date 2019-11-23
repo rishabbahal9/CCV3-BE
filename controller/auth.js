@@ -3,7 +3,7 @@ const User=require('./../model/user')
 const Doc=require('./../model/docs')
 const jwt=require('jsonwebtoken')
 const crypto=require('crypto')
-
+ObjectId = require('mongodb').ObjectID;
 
 const nodemailer=require('nodemailer')
 const sendgridTransport=require('nodemailer-sendgrid-transport')
@@ -586,7 +586,7 @@ exports.getProfileData=(req,res,next)=>{
 		"$indexOfArray": [ "$$classIds", "$_id" ]
 		}
 		}},
-		{ "$sort": { "sort": -1 } },
+		{ "$sort": { "sort": 1 } },
 		{ "$addFields": { "sort": "$$REMOVE" }}
 		],
 		"as": "starredDocs"
@@ -600,14 +600,14 @@ exports.getProfileData=(req,res,next)=>{
 		{$project: {_id:0,firstName:1,lastName:1,email:1,gender:1,imgUrl:1,dateCreated:1,emailVerified:1,admin:1,bio:1,starredDocs:{$reverseArray: "$starredDocs"} ,uploadedDocs:{$reverseArray: "$uploadedDocs"}}},
 		{$project: {firstName:1,lastName:1,email:1,gender:1,imgUrl:1,dateCreated:1,emailVerified:1,admin:1,bio:1,starredDocs:{$slice: ["$starredDocs",3]},uploadedDocs:{$slice: ["$uploadedDocs",3]}}},		
         {$unwind: {path: "$starredDocs","preserveNullAndEmptyArrays": true}},
-        {$project: {"starredDocs._id":0,"starredDocs.comments":0}},
+        {$project: {"starredDocs.comments":0}},
         {$group:{_id:{firstName:"$firstName",lastName:"$lastName",email:"$email",gender:"$gender",imgUrl:"$imgUrl",dateCreated:"$dateCreated",emailVerified:"$emailVerified",admin:"$admin",bio:"$bio",uploadedDocs:"$uploadedDocs"},starredDocs: {$push: "$starredDocs"}}},
         {$project: {_id:1,starredDocs:1,uploadedDocs: "$_id.uploadedDocs"}},
         {$project: {"_id.uploadedDocs":0}},
         {$unwind: {path: "$uploadedDocs","preserveNullAndEmptyArrays": true}},
-        {$project: {"uploadedDocs._id":0,"uploadedDocs.comments":0}},
+        {$project: {"uploadedDocs.comments":0}},
         {$group:{_id:{firstName:"$_id.firstName",lastName:"$_id.lastName",email:"$_id.email",gender:"$_id.gender",imgUrl:"$_id.imgUrl",dateCreated:"$_id.dateCreated",emailVerified:"$_id.emailVerified",admin:"$_id.admin",bio:"$_id.bio",starredDocs:"$starredDocs"},uploadedDocs: {$push: "$uploadedDocs"}}},
-        {$project: {_id: 0, firstName: "$_id.firstName", lastName: "$_id.lastName",email: "$_id.email", imgUrl: "$_id.imgUrl",gender: "$_id.gender", dateCreated: "$_id.dateCreated",bio: "$_id.bio",emailVerified: "$_id.emailVerified", admin: "$_id.admin",starredDocs: "$_id.starredDocs", uploadedDocs: "$uploadedDocs"}}
+        {$project: { firstName: "$_id.firstName", lastName: "$_id.lastName",email: "$_id.email", imgUrl: "$_id.imgUrl",gender: "$_id.gender", dateCreated: "$_id.dateCreated",bio: "$_id.bio",emailVerified: "$_id.emailVerified", admin: "$_id.admin",starredDocs: "$_id.starredDocs", uploadedDocs: "$uploadedDocs"}}
         ])				
         .then(data=>{
             // console.log(data[0])
@@ -683,7 +683,7 @@ exports.getProfileAllSavedDocs=(req,res,next)=>{
         ],
         as: "starredDocs"
         }},
-        {$project: {starredDocs: 1,_id:0}}
+        {$project: {starredDocs: 1}}
         ])
     .skip((page-1)*ITEMS_PER_PAGE)
     .limit(ITEMS_PER_PAGE)
@@ -700,5 +700,75 @@ exports.getProfileAllSavedDocs=(req,res,next)=>{
             totalPages: totalPages,
             totalDocs: totalDocs
         })
+    })
+}
+
+exports.saveThisDocument=(req,res,next)=>{
+    console.log("Received ID: ")
+    console.log(req.body.docToBeSavedId)
+    console.log(req.body.loggedInUserEmail)
+    User.aggregate([
+        {$match: {email: req.body.loggedInUserEmail}},
+		{$project: {_id: 0,starred: 1}}
+    ])
+    .then(data=>{
+        starredArray=data[0].starred
+        console.log("If found in array:")
+        console.log(starredArray.find(starredArray=>{return starredArray==req.body.docToBeSavedId}))
+        var foundDocId=starredArray.find(starredArray=>{return starredArray==req.body.docToBeSavedId})
+        if(foundDocId)
+        {
+            User.find({email: req.body.loggedInUserEmail})
+            .then(loggedInUser=>{
+                var arr=loggedInUser[0].starred
+                var t=arr.indexOf(foundDocId)
+                if(t>-1)
+                {
+                    arr.splice(t,1)
+                }
+                loggedInUser[0].starred=arr
+                loggedInUser[0].save()
+                .then(data=>{
+                    console.log("Checking if array is saved or not")
+                    console.log(data)
+                    res.status(200).json({
+                        docInStarredArray: false
+                    })
+                })
+            })
+            .catch(err=>{
+                console.log("Error occurred: ")
+                console.log(err)
+            })      
+            
+        }
+        else
+        {
+            User.find({email: req.body.loggedInUserEmail})
+            .then(loggedInUser=>{
+                arr=loggedInUser[0].starred
+                arr.push(ObjectId(req.body.docToBeSavedId))
+                loggedInUser[0].starred=arr
+                loggedInUser[0].save()
+                .then(data=>{
+                    console.log("Checking if array is saved or not")
+                    console.log(data)
+                    res.status(200).json({
+                        docInStarredArray: true
+                    })
+                })
+            })
+            .catch(err=>{
+                console.log("Error occurred: ")
+                console.log(err)
+                res.status(500).json({
+                    error: err
+                })
+            })
+        }
+    })
+    .catch(err=>{
+        console.log("Error occurred:")
+        console.log(err)
     })
 }

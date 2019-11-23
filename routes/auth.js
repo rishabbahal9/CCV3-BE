@@ -72,6 +72,7 @@ router.get('/admin/unauthDocs/:page',isAuth,authController.getUnauthDocs)
 router.post('/admin/authorizeDoc',isAuth,authController.authorizeDoc)
 // POST auth/admin/rejectDoc
 router.post('/admin/rejectDoc',isAuth,authController.rejectDoc)
-
+//PATCH auth/saveThisDocument
+router.patch('/saveThisDocument',isAuth,authController.saveThisDocument)
 
 module.exports=router
