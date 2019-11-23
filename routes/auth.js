@@ -74,5 +74,7 @@ router.post('/admin/authorizeDoc',isAuth,authController.authorizeDoc)
 router.post('/admin/rejectDoc',isAuth,authController.rejectDoc)
 //PATCH auth/saveThisDocument
 router.patch('/saveThisDocument',isAuth,authController.saveThisDocument)
+//POST auth/checkThisDocument
+router.post('/checkThisDocument',isAuth,authController.checkThisDocument)
 
 module.exports=router

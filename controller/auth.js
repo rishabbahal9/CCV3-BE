@@ -704,17 +704,12 @@ exports.getProfileAllSavedDocs=(req,res,next)=>{
 }
 
 exports.saveThisDocument=(req,res,next)=>{
-    console.log("Received ID: ")
-    console.log(req.body.docToBeSavedId)
-    console.log(req.body.loggedInUserEmail)
     User.aggregate([
         {$match: {email: req.body.loggedInUserEmail}},
 		{$project: {_id: 0,starred: 1}}
     ])
     .then(data=>{
         starredArray=data[0].starred
-        console.log("If found in array:")
-        console.log(starredArray.find(starredArray=>{return starredArray==req.body.docToBeSavedId}))
         var foundDocId=starredArray.find(starredArray=>{return starredArray==req.body.docToBeSavedId})
         if(foundDocId)
         {
@@ -729,8 +724,6 @@ exports.saveThisDocument=(req,res,next)=>{
                 loggedInUser[0].starred=arr
                 loggedInUser[0].save()
                 .then(data=>{
-                    console.log("Checking if array is saved or not")
-                    console.log(data)
                     res.status(200).json({
                         docInStarredArray: false
                     })
@@ -751,8 +744,6 @@ exports.saveThisDocument=(req,res,next)=>{
                 loggedInUser[0].starred=arr
                 loggedInUser[0].save()
                 .then(data=>{
-                    console.log("Checking if array is saved or not")
-                    console.log(data)
                     res.status(200).json({
                         docInStarredArray: true
                     })
@@ -770,5 +761,28 @@ exports.saveThisDocument=(req,res,next)=>{
     .catch(err=>{
         console.log("Error occurred:")
         console.log(err)
+    })
+}
+
+exports.checkThisDocument=(req,res,next)=>{
+    User.aggregate([
+        {$match: {email: req.body.loggedInUserEmail}},
+		{$project: {_id: 0,starred: 1}}
+    ])
+    .then(user=>{
+        starredArray=user[0].starred
+        var foundDocId=starredArray.find(starredArray=>{return starredArray._id==req.body.docToBeCheckedId})
+        if(foundDocId)
+        {
+            res.status(200).json({
+                docInStarredArray: true
+            })
+        }
+        else
+        {
+            res.status(200).json({
+                docInStarredArray: false
+            })
+        }
     })
 }
