@@ -1,0 +1,1071 @@
+openapi: 3.0.0
+info:
+  title: CCV3
+  description: API of coconut catalogue version 3 (CCV3)
+  version: 3.0.0
+  contact:
+    name: Rishab Bahal
+    email: rishabbahal@gmail.com
+servers:
+  - url: http://ec2-13-127-202-155.ap-south-1.compute.amazonaws.com:3010
+    description: Live production server  
+  - url: http://localhost:3010
+    description: Local development server
+
+paths:
+  /generic/searched/{searchedString}/{page}:
+    get:
+      tags:
+        - Generic
+      summary: Search for docs.
+      description: Search docs with respect to text sent and returns 9 documents with respect to page number.
+      parameters:
+        - in: path
+          name: searchedString
+          schema:
+            type: string
+          required: true
+          description: String to be searched
+        - in: path
+          name: page
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: page number
+      responses:
+        '200':    # status code
+          description: A JSON object
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  totalPages: 
+                    type: integer
+                    example: 3
+                  totalDocs: 
+                    type: integer
+                    example: 21
+                  docsArray:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Doc'
+              example: {"docsArray": [{"comments": [],"_id": "5d75df56bf3b2e8ee79c849c","heading": "The Secret : Rhonda Byrne","text": "The Secret is a self-help book by Rhonda Byrne.","course": "library","stream": "finance","subject": "selfHelp","authorized": true,"userEmail": "harold_braun@coconutc.com","author": "5d754889ba4b5g5ee79c849a","dateCreated": "2019-09-09T05:12:54.553Z","fileLocation": "https://82006%29.pdf","filename": "docs/Mon Sep 09 2019(2006).pdf","originalname": "Michael Beckwith (2006).pdf","userFirstName": " Harold","rejected": false,"__v": 0,"score": 3.8888888888888884}],"totalPages": 1,"totalDocs": 1}
+
+  /generic/{subjectName}/{page}:
+    get:
+      tags:
+        - Generic
+      summary: Search for particular subject docs.
+      description: Search docs with respect to subject sent and returns 9 documents with respect to page number.
+      parameters:
+        - in: path
+          name: subjectName
+          schema:
+            type: string
+          required: true
+          description: Subject to be searched
+        - in: path
+          name: page
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: page number
+      responses:
+        '200':    # status code
+          description: A JSON object
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  totalPages: 
+                    type: integer
+                    example: 3
+                  totalDocs: 
+                    type: integer
+                    example: 21
+                  docsArray:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Doc'
+              example: {"docsArray": [{"comments": [],"_id": "5d75df56bf3b2e8ee79c849c","heading": "The Secret : Rhonda Byrne","text": "The Secret is a self-help book by Rhonda Byrne.","course": "library","stream": "finance","subject": "selfHelp","authorized": true,"userEmail": "harold_braun@coconutc.com","author": "5d754889ba4b5g5ee79c849a","dateCreated": "2019-09-09T05:12:54.553Z","fileLocation": "https://82006%29.pdf","filename": "docs/Mon Sep 09 2019(2006).pdf","originalname": "Michael Beckwith (2006).pdf","userFirstName": " Harold","rejected": false,"__v": 0,"score": 3.8888888888888884}],"totalPages": 1,"totalDocs": 1}
+
+
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: Sign up a user.
+      description: Saves user's details in a database and send them the authorization email..
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                gender:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+              example: {firstName: "Emma", lastName: "Watson", gender: "female", email: "emma_watson@coconutc.com", password: "imemma"}
+                  
+      responses:
+        '201':    # status code
+          description: User successfully signed up
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Details successfully stored!"
+                  user: 
+                    type: object
+        '401':    # status code
+          description: Client error
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email already exists"
+                  user: 
+                    type: object
+        '501':    # status code
+          description: Server error
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Error: cannot save data"
+                  user: 
+                    type: object
+        
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Login a user.
+      description: Check if user have entered the correct email and password. If details are correct then returns an object JSON Web Token (JWT).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              example: { email: "emma_watson@coconutc.com", password: "imemma"}
+                  
+      responses:
+        '200':    # status code
+          description: User successfully logged in
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Logged In successfully"
+                  token: 
+                    type: string
+                    example: "djkf788dfsufb4t8riugb8g85b8b"
+                  expiresIn:
+                    type: integer
+                    example: 3600000
+        '401':    # status code
+          description: Client error 'Email not found' or 'Incorrect password'
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email not found"
+                  token:
+                    type: string
+                    example: null
+                  expiresIn: 
+                    type: integer
+                    example: 0
+
+  /auth/userAuthentication/{ObjectID}:
+    patch:
+      tags:
+        - Auth
+      summary: Verify email ID
+      description: Takes the object ID of the user from parameter and verifies email. 
+      parameters:
+        - in: path
+          name: ObjectID
+          schema:
+            type: string
+          required: true
+          description: ObjectID of the user to be authenticated.
+      responses:
+        '202':    # status code
+          description: Email verified.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email verified! Now go to login."
+        '400':    # status code
+          description: Client error 'Email can\'t be verified!' 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email can't be verified!"
+                    
+  /auth/forgotPassword:
+    post:
+      tags:
+        - Auth
+      summary: Sends link to email for password reset.
+      description: Takes user's email from request body, verifies if such email exist, then sends a link to that email for password reset. Link is valid only for 1 hour.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              example: { email: "emma_watson@coconutc.com" }
+        
+      responses:
+        '200':    # status code
+          description: Email sent with reset password link.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email with the password reset link has been sent to your email. Link will expire after 1 hour."
+        '406':    # status code
+          description: Client error, either 'Email is not registered with us.' or 'Some error occurred' 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email is not registered with us."
+  /auth/resetPassword:
+    post:
+      tags:
+        - Auth
+      summary: Checks if password token is valid or not.
+      description: Checks if password token is correct and if valid for current time or not.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pwdToken:
+                  type: string
+              example: { pwdToken: "dbjsbsdfi678fsgreu8reu" }
+        
+      responses:
+        '200':    # status code
+          description: Email sent with reset password link.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email with the password reset link has been sent to your email. Link will expire after 1 hour."
+        '406':    # status code
+          description: Client error, either 'Email is not registered with us.' or 'Some error occurred' 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Email is not registered with us."
+
+  /auth/resetPasswordSubmit:
+    post:
+      tags:
+        - Auth
+      summary: Submits the new password.
+      description: Submits the new changed password through reset password link if link has not expired.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pwdToken:
+                  type: string
+                password:
+                  type: string
+                cpassword:
+                  type: string
+              example: {pwdToken: "dbjsbsdfi678fsgreu8reu",password: "iamapassword",cpassword: "iamapassword"}
+        
+      responses:
+        '200':    # status code
+          description: New password has been set up.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "New password has been set up."
+        '401':    # status code
+          description: Client error, either INVALID LINK or LINK EXPIRED
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Link expired: Go to Forgot password again."
+        '409':    # status code
+          description: password and cpassword don't match.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "New password you were suppose to enter twice does not match."
+
+  /auth/changePasswordSubmit:
+    post:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Submits the new password.
+      description: Submits the new changed password through change password page.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                currentPassword:
+                  type: string
+                password:
+                  type: string
+                cpassword:
+                  type: string
+              example: {email: "emma.watson@coconutc.com",currentPassword: "oldpwd",password: "newpwd",cpassword: "newpwd"}
+        
+      responses:
+        '200':    # status code
+          description: Password changed.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "NewPassword has been successfully changed."
+        '500':    # status code
+          description:  Wrong Current Password or New password cant be confirmed.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Wrong current password."
+                    
+  /auth/getProfileData/{emailID}:
+    get:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Get profile by email ID.
+      description: Returns profile of the sent email ID.
+      parameters:
+        - in: path
+          name: emailID
+          schema:
+            type: string
+          required: true
+          description: email
+      responses:
+        '200':    # status code
+          description: A JSON object
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  profileData:
+                      $ref: '#/components/schemas/User'
+        '500':    # status code
+          description:  Error occured
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Error occured."
+
+  /auth/getProfileAllUploadedDocs/{emailID}/{page}:
+    get:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Get uploaded documents of the user.
+      description: Get uploaded docs of the user by email ID and page number.
+      parameters:
+        - in: path
+          name: emailID
+          schema:
+            type: string
+          required: true
+          description: email
+        - in: path
+          name: page
+          schema:
+            type: number
+          required: true
+          description: page number
+      responses:
+        '200':    # status code
+          description: A JSON object
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  totalPages: 
+                    type: integer
+                    example: 3
+                  totalDocs: 
+                    type: integer
+                    example: 21
+                  docsArray:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Doc'
+              example: {"docsArray": [{"comments": [],"_id": "5d75df56bf3b2e8ee79c849c","heading": "The Secret : Rhonda Byrne","text": "The Secret is a self-help book by Rhonda Byrne.","course": "library","stream": "finance","subject": "selfHelp","authorized": true,"userEmail": "harold_braun@coconutc.com","author": "5d754889ba4b5g5ee79c849a","dateCreated": "2019-09-09T05:12:54.553Z","fileLocation": "https://82006%29.pdf","filename": "docs/Mon Sep 09 2019(2006).pdf","originalname": "Michael Beckwith (2006).pdf","userFirstName": " Harold","rejected": false,"__v": 0,"score": 3.8888888888888884}],"totalPages": 1,"totalDocs": 1}
+
+  /auth/getProfileAllSavedDocs/{emailID}/{page}:
+    get:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Get saved documents of the user.
+      description: Get saved docs of the user by email ID and page number.
+      parameters:
+        - in: path
+          name: emailID
+          schema:
+            type: string
+          required: true
+          description: email
+        - in: path
+          name: page
+          schema:
+            type: number
+          required: true
+          description: page number
+      responses:
+        '200':    # status code
+          description: A JSON object
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  totalPages: 
+                    type: integer
+                    example: 3
+                  totalDocs: 
+                    type: integer
+                    example: 21
+                  docsArray:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Doc'
+              example: {"docsArray": [{"comments": [],"_id": "5d75df56bf3b2e8ee79c849c","heading": "The Secret : Rhonda Byrne","text": "The Secret is a self-help book by Rhonda Byrne.","course": "library","stream": "finance","subject": "selfHelp","authorized": true,"userEmail": "harold_braun@coconutc.com","author": "5d754889ba4b5g5ee79c849a","dateCreated": "2019-09-09T05:12:54.553Z","fileLocation": "https://82006%29.pdf","filename": "docs/Mon Sep 09 2019(2006).pdf","originalname": "Michael Beckwith (2006).pdf","userFirstName": " Harold","rejected": false,"__v": 0,"score": 3.8888888888888884}],"totalPages": 1,"totalDocs": 1}
+                
+  /auth/updateProfileSubmit:
+    post:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Update profile with new data.
+      description: Updates user profile with new data.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                gender:
+                  type: string
+                bio:
+                  type: string
+              
+              example: {email: "emma_watson@coconutc.com", firstName: "Emma", lastName: "Watson", gender: "female", bio: "I am Emma Watson."}
+                  
+      responses:
+        '200':    # status code
+          description: Profile successfully updated.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Profile successfully updated."
+        '500':    # status code
+          description: Client error
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Could not update user!"
+
+
+  /auth/docUploadFormSubmit:
+    post:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Document upload form submit.
+      description: Document upload form submit.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                heading: 
+                  type: string
+                  example: "The book 1"
+                text: 
+                  type: string
+                  example: "Description of book 1"
+                subject: 
+                  type: string
+                  example: "Mathematics"
+                userFirstName:
+                  type: string
+                  example: "Emma"
+                userEmail:
+                  type: string
+                  example: "emma_watson@coconutc.com"
+                fileLocation:
+                  type: string
+                  example: "https://aws.ca/dfnksfnfglslfslg"
+                filename: 
+                  type: string
+                  example: "book1_002367"
+                originalname:
+                  type: string
+                  example: "book1"
+                author:
+                  type: string
+                  example: "ObjectID('dsnfdionfgdngkd')"
+                course: 
+                  type: string
+                  example: "B.Tech"
+                stream: 
+                  type: string
+                  example: "ECE"
+                  
+                
+      responses:
+        '200':    # status code
+          description: Document form upload.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Docs form successfully uploaded!"
+                  success:
+                    type: boolean
+                    example: true
+        '501':    # status code
+          description: Server error
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "Docs form unsuccessful!"
+                  success: 
+                    type: boolean
+                    example: false
+
+
+  /auth/uploadDocs:
+    post:
+      tags:
+        - Auth
+      summary: Document upload submit.
+      description: Document upload submit. (Accepts only pdf)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                
+      responses:
+        '200':    # status code
+          description: Doc upload.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  msg: 
+                    type: string
+                    example: "File uploaded successfully!"
+                  filename:
+                    type: string
+                    example: "docs/Wed Apr 15 2020-1586946110479-Emma hot.pdf"
+                  fileLocation:
+                    type: string
+                    example: https://amazonaws.com/docs/Wed%20Apr%2015%202020-146279-Emma%20hot.pdf
+                  originalname:
+                    type: string
+                    example: Emma hot
+
+
+  /auth/admin/unauthDocs/{page}:
+    get:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Gets Unauthorized documents for the admin.
+      description: Gets Unauthorized documents for the admin.
+      parameters:
+        - in: path
+          name: page
+          schema:
+            type: integer
+            default: 1
+          required: true
+          description: page number
+      responses:
+        '200':    # status code
+          description: A JSON object
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  totalPages: 
+                    type: integer
+                    example: 3
+                  totalDocs: 
+                    type: integer
+                    example: 21
+                  docsArray:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Doc'
+              example: {"docsArray": [{"comments": [],"_id": "5d75df56bf3b2e8ee79c849c","heading": "The Secret : Rhonda Byrne","text": "The Secret is a self-help book by Rhonda Byrne.","course": "library","stream": "finance","subject": "selfHelp","authorized": true,"userEmail": "harold_braun@coconutc.com","author": "5d754889ba4b5g5ee79c849a","dateCreated": "2019-09-09T05:12:54.553Z","fileLocation": "https://82006%29.pdf","filename": "docs/Mon Sep 09 2019(2006).pdf","originalname": "Michael Beckwith (2006).pdf","userFirstName": " Harold","rejected": false,"__v": 0,"score": 3.8888888888888884}],"totalPages": 1,"totalDocs": 1}
+
+       
+  /auth/admin/authorizeDoc:
+    post:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Authorize the given doc.
+      description: Authorize the given doc.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename: 
+                  type: string
+                  example: "The book 1"
+                  
+                  
+                
+      responses:
+        '200':    # status code
+          description: Authorized given doc.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  status: 
+                    type: string
+                    example: "Doc successfully authorized!"
+                  success:
+                    type: boolean
+                    example: true
+        '500':    # status code
+          description: Server error
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  status: 
+                    type: string
+                    example: "Unable to authorize doc"
+                  success: 
+                    type: boolean
+                    example: false
+
+
+  /auth/admin/rejectDoc:
+    post:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Rejects the given doc.
+      description: Rejects the given doc.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filename: 
+                  type: string
+                  example: "The book 1"
+                  
+                  
+                
+      responses:
+        '200':    # status code
+          description: Reject given doc.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  status: 
+                    type: string
+                    example: "Doc successfully rejected!"
+                  success:
+                    type: boolean
+                    example: true
+        '500':    # status code
+          description: Server error
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  status: 
+                    type: string
+                    example: "Unable to reject doc"
+                  success: 
+                    type: boolean
+                    example: false
+
+
+  /auth/saveThisDocument:
+    patch:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Adds the given document in saved documents.
+      description: Adds the given document or removes from the saved documents.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                loggedInUserEmail: 
+                  type: string
+                  example: "emma_watson@coconutc.com"
+                docToBeSavedId:
+                  type: string
+                  example: "djfks9405tgjdo"
+  
+      responses:
+        '200':    # status code
+          description: Document added to or removed from the saved documents.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  docInStarredArray: 
+                    type: boolean
+                    example: true
+        '500':    # status code
+          description: Server error 
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  error: 
+                    type: string
+                    example: "Error description"
+                    
+  /auth/checkThisDocument:
+    post:
+      security:
+        - checkUserAuth: []
+      tags:
+        - Auth
+      summary: Checks if the doc is saved or not.
+      description: Checks if the doc is saved or not.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                loggedInUserEmail: 
+                  type: string
+                  example: "emma_watson@coconutc.com"
+                docToBeSavedId:
+                  type: string
+                  example: "djfks9405tgjdo"
+                  
+      responses:
+        '200':    # status code
+          description: Document added to or removed from the saved documents.
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  docInStarredArray: 
+                    type: boolean
+                    example: true
+                    
+                    
+                    
+components:
+  schemas: 
+    Doc: 
+      description: Model of Documents.
+      required:
+        - _id
+        - heading
+        - text
+        - course
+        - stream
+        - subject
+        - authorized
+        - userEmail
+        - author
+        - dateCreated
+        - fileLocation
+        - filename
+        - originalname
+        - userFirstName
+        - rejected
+      properties: 
+        _id: 
+          type: string
+          example: "5d75df56ba4b2e9tt79c849c"
+        heading: 
+          type: string
+          example: "Rich dad poor dad"
+        text: 
+          type: string
+          example: "Rich dad poor dad by Robert T. Kiyosaki"
+        course:
+          type: string
+          example: "library"
+        stream: 
+          type: string
+          example: "finance"
+        subject: 
+          type: string
+          example: "selfHelp"
+        authorized:
+          type: boolean
+          example: true
+        userEmail:
+          type: string
+          example: "harold_braun@coconutc.com"
+        author:
+          type: string
+          example: "5d75df56ba4b2e9tt79c849c"
+        dateCreated:
+          type: string
+          example: "2019-09-09T05:12:54.553Z"
+        fileLocation:
+          type: string
+          example: "https://cococ.0Lee.pdf"
+        filename:
+          type: string
+          example: "5684568-Michael Beckwith.pdf"
+        originalname: 
+          type: string
+          example: "Michael Beckwith.pdf"
+        userFirstName:
+          type: string
+          example: "Harold"
+        rejected:
+          type: boolean
+          example: false
+        dateAuthorized: 
+          type: string
+          example: "2019-09-09T05:12:54.553Z"
+        views: 
+          type: number
+          example: 9
+        comments: 
+          type: array
+          items:
+            type: object
+        
+    User: 
+      description: Model of User.
+      required:
+        - _id
+        - firstname
+        - lastname
+        - gender
+        - email
+        - password
+        - imgUrl
+        - emailVerified
+        - dateCreated
+        - admin
+      properties: 
+        _id: 
+          type: string
+          example: "5d75df56ba4b2e9tt79c849c"
+        firstname: 
+          type: string
+          example: "Harold"
+        lastname: 
+          type: string
+          example: "Braun"
+        gender:
+          type: string
+          example: male
+        email: 
+          type: string
+          example: "harold_braun@coconutc.com"
+        password:
+          type: string
+          example: "jdskbk7sdho4rei9"
+        imgUrl:
+          type: string
+          example: "https://i0.wp.com/espalhafactos.com/wp-content/uploads/2018/04/28870052_1904549512897263_676901904004939776_n-compressor.png?fit=768%2C514&ssl=1"
+        emailVerified: 
+          type: boolean
+          example: true
+        dateCreated:
+          type: string
+          example: "2019-09-09T05:12:54.553Z"
+        admin:
+          type: boolean
+          example: false
+        starred:
+          type: array
+          items:
+            $ref: "#/components/schemas/Doc"
+        uploaded:
+          type: array
+          items:
+            $ref: "#/components/schemas/Doc"
+        pwdToken:
+          type: string
+        pwdTokenExp:
+          type: string
+        bio:
+          type: string
+          example: "I am good."
+          
+  securitySchemes: 
+    checkUserAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWTString
+  
+        

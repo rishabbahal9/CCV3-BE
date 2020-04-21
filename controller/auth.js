@@ -285,13 +285,17 @@ exports.resetPasswordSubmit=(req,res,next)=>{
                 }
                 else
                 {
-                    return res.status(408).json({msg: "Link expired: Go to Forgot password again."}) 
+                    return res.status(401).json({msg: "Link expired: Go to Forgot password again."}) 
                 }
         })
         .catch(err=>{
             console.log(err);
-            return res.status(408).json({msg: "Link expired: Go to Forgot password again."});
+            return res.status(401).json({msg: "Invalid Link: user not found."});
         })
+    }
+    else
+    {
+        return res.status(409).json({msg: "New password you were suppose to enter twice does not match."});
     }
 }
 
@@ -348,7 +352,7 @@ exports.updateProfileSubmit=(req,res,next)=>{
             user.gender=gender;
             user.bio=bio;
             user.save()
-            res.status(200).json({msg: "Profile successfully updated"})
+            res.status(200).json({msg: "Profile successfully updated.f"})
         },
         err=>{
             console.log(err)

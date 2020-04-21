@@ -7,8 +7,9 @@ dotenv.config()
 const express=require('express')
 const bodyParser=require('body-parser')
 const mongoose=require('mongoose')
+const swaggerUi=require('swagger-ui-express')
 
-
+const swaggerDocument=require('./util/swagger.json')
 const authRoute=require('./routes/auth')
 const genericRoute=require('./routes/generic')
 
@@ -28,13 +29,13 @@ app.use((req,res,next)=>{
 })
 
 
-
-
 app.use((req,res,next)=>{
     const url=req.url;
     console.log("Request: "+url)
     next()
 })
+
+app.use('/api-docs',swaggerUi.serve,swaggerUi.setup(swaggerDocument))
 
 app.use('/generic',genericRoute)
 app.use('/auth',authRoute)
