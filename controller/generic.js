@@ -3,12 +3,24 @@ const Doc=require('./../model/docs')
 const ITEMS_PER_PAGE=parseInt(process.env.ITEMS_PER_PAGE_GENERIC); 
 
 exports.getSubjectDocs=(req,res,next)=>{
-    const subject=req.params.subjectName;
+    const university=req.params.university;
+    const course=req.params.course;
+    const stream=req.params.stream;
+    const subject=req.params.subject;
     const page=req.params.page;
+
+    // console.log("university,course,stream,subject");
+
     var totalPages;
     var totalD;
 
-    Doc.find({subject: subject,authorized: true,rejected: false})
+    Doc.find({
+        // university: university, 
+        // course: course, 
+        // stream: stream, 
+        subject: subject, 
+        authorized: true,
+        rejected: false})
     .countDocuments()
     .then(totalDocs=>{
         totalD=totalDocs;
