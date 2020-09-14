@@ -410,6 +410,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     var author=(await User.findOne({email: userEmail}))._id;
     const course=req.body.course;
     const stream=req.body.stream;
+    const university=req.body.university;
     // console.log("Heading: "+heading);
     // console.log("Text: "+text);
     // console.log("Subject: "+subject);
@@ -423,6 +424,7 @@ exports.docUploadFormSubmit=async (req,res,next)=>{
     const doc=new Doc({
         heading: heading,
         text: text,
+        university: university,
         course: course,
         stream: stream,
         subject: subject,
